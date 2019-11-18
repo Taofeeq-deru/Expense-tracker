@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Budget App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            font-size: 100%;
+            background: #eeeeee;
+        }
+        .fa-naira:before {
+            font-weight: 700;
+            font-family: 'Raleway', sans-serif;
+            content: '₦';
+        }
+        .expenseRows {
+            list-style: none;
+            padding: 0;
+        }
+        .delete:hover{
+            cursor: pointer;
+        }
+        @media screen and (max-width: 48em) {
+            .resize {
+                font-size: 100%;
+            }
+        }
+        @media screen and (max-width: 47.5em) {
+            #details, #expDetails {
+                margin-top: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container pt-4">
+        <div class="row">
+            <h3 class="col-md-12 text-info"> Welcome<!--<span class="text-capitalize userName font-weight-bold"></span>-->, let's help you with your budget.</h3>
+        </div>
+        <div class="row">
+            <h2 class="col-md-12 text-uppercase">budget app</h2>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-5">
+                <div id="budget" class="border border-success rounded p-3 w-100">
+                    <form action="" role="form" class="budgetForm">
+                        <div class="form-group">
+                            <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter your budget</label>
+                            <div class="col-sm-11">
+                                <input type="number" name="budget" placeholder="Enter Amount" class="form-control border-success" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="sm-1"></div>
+                            <div class="col-sm-11">
+                                <button type="submit" class="btn btn-outline-success text-capitalize">calculate</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div id="details" class="row">
+                    <div class="infos col-4 text-center">
+                        <h6 class="resize text-uppercase font-weight-bold">budget</h6>
+                        <i class="fa fa-money-bill-alt fa-4x text-info mt-1 mb-1"></i>
+                        <h4 class="text-success"><span id="budgetAmount">&#8358; 0</span></h4>
+                    </div>
+                    <div class="infos col-4 text-center">
+                        <h6 class="resize text-uppercase font-weight-bold">expenses</h6>
+                        <i class="far fa-credit-card fa-4x text-info mt-1 mb-1"></i>
+                        <h4 class="text-danger"><span id="expenseAmount">&#8358; 0</span></h4>
+                    </div>
+                    <div class="infos col-4 text-center">
+                        <h6 class="resize text-uppercase font-weight-bold">balance</h6>
+                        <i class="fa fa-naira fa-4x text-info mt-1 mb-1"></i>
+                        <h4 class="text-dark"><span id="balance">&#8358; 0</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-5">
+                <div id="expense" class="border border-danger rounded p-3 w-100">
+                    <form action="" role="form" class="expenseForm">
+                        <div class="form-group">
+                            <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter your expense</label>
+                            <div class="col-sm-11">
+                                <input type="text" name="expname" id="expenseName" placeholder="Enter Expense" class="form-control border-danger" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter expense amount</label>
+                            <div class="col-sm-11">
+                                <input type="number" name="expense" id="expenseValue" placeholder="Enter Expense Amount" class="form-control border-danger" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="sm-1"></div>
+                            <div class="col-sm-11">
+                                <button type="submit" class="btn btn-outline-danger text-capitalize">add expense</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="expDetails" class="col-md-7">
+                <div class="row">
+                    <div class="infos text-center col-4">
+                        <p class="text-capitalize text-dark font-weight-bold">expense title</p>
+                    </div>
+                    <div class="infos text-center col-4">
+                        <p class="text-capitalize text-dark font-weight-bold">expense value</p>
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+                <ul class="expenseRows" id="expList">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>  
+    <script>
+        const budgetForm = document.querySelector('.budgetForm');
+        const budgetAmount = document.querySelector('#budgetAmount');
+        const budget = [];
+
+        const expenseForm = document.querySelector('.expenseForm');
+        const expenseAmount = document.querySelector('#expenseAmount');
+        const expenseList = document.querySelector('#expList');
+        const expenseDetails = [];
+
+        let theBalance;
+        const balance = document.querySelector('#balance');
+
+        const wholeBudget = {};
+        
+        function showBudget(e) {
+            e.preventDefault();
+            const budgetValue = (this.querySelector('[name=budget]')).value;
+            const budValue = {
+                budgetValue
+            };
+            const newBudget = Number(budgetValue);
+            wholeBudget.budget = newBudget;
+            if(budget != []) {
+                budget.splice(0, 1, budValue);
+            } else {
+                budget.push(budValue);
+            }
+            
+            addBudget(budget, budgetAmount);
+            
+            showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+
+            this.reset();
+        }
+
+        function addBudget(budInfo = [], budAmt) {
+            budAmt.innerHTML = budInfo.map((amt) => {
+                return `
+                    &#8358; ${amt.budgetValue}
+                `;
+            }).join('');
+        }
+
+        function showExpenseDetails(e) {
+            e.preventDefault();
+            const expenseName = (this.querySelector('[name=expname]')).value;
+            const expenseValue = (this.querySelector('[name=expense]')).value;
+            expenseVal = Number(expenseValue);
+            const exp = {
+                expenseName,
+                expenseVal
+            };
+            expenseDetails.push(exp);
+            
+            addExpense(expenseDetails, expenseList);
+            
+            const exi = expenseDetails.map(expenses => expenses.expenseVal);
+            const expense = exi.reduce((a, b) => a + b, 0);
+            wholeBudget.expense = expense;
+            expenseAmount.innerHTML = `&#8358; ${expense}`;
+
+            showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+            
+            this.reset();
+        }
+
+        function addExpense(expInfo = [], expL) {
+            expL.innerHTML = expInfo.map((list, i) => {
+                return `
+                    <li class="row">
+                        <p class="col-4 text-center infos text-danger text-capitalize" data-index="${i}" id=exp${i}>${list.expenseName}</p>
+                        <p class="col-4 text-center infos text-danger" for="exp${i}">&#8358; ${list.expenseVal}</p>
+                        <i class="col-4 text-left infos text-danger fa fa-trash delete" for="exp${i}"></i>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function deleteExpense(e) {
+            if(e.target.matches('.delete')) {     
+                const el = e.target;
+                const index = el.dataset.index;
+                expenseDetails.splice(index, 1);
+                addExpense(expenseDetails, expenseList);
+                const exi = expenseDetails.map(expenses => expenses.expenseVal);
+                const expense = exi.reduce((a, b) => a + b, 0);
+                wholeBudget.expense = expense;
+                expenseAmount.innerHTML = `&#8358; ${expense}`;
+
+                showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+            }
+        }
+
+        
+
+        function showBalance(a = 0, b = 0, c) {
+            c = a - b; //calculate the balance
+            if(c < 0) {
+                balance.innerHTML = `<span class="text-danger">&#8358; ${c}</span>`;
+            } else if(c > 0) {
+                balance.innerHTML = `<span class="text-success">&#8358; ${c}</span>`;
+            } else {
+                balance.innerHTML = `<span class="text-dark">&#8358; ${c}</span>`;
+            }
+        }
+
+
+
+        budgetForm.addEventListener('submit', showBudget);
+        expenseForm.addEventListener('submit', showExpenseDetails);
+        expenseList.addEventListener('click', deleteExpense);
+    </script>
+</body>
+</html>
