@@ -23,8 +23,11 @@
             list-style: none;
             padding: 0;
         }
-        .delete:hover{
+        .delete:hover {
             cursor: pointer;
+        }
+        .out:focus, .outBtn:focus {
+            box-shadow: none;
         }
         @media screen and (max-width: 48em) {
             .resize {
@@ -53,13 +56,13 @@
                         <div class="form-group">
                             <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter your budget</label>
                             <div class="col-sm-11">
-                                <input type="number" name="budget" placeholder="Enter Amount" class="form-control border-success" required>
+                                <input type="number" name="budget" placeholder="Enter Amount" class="form-control border-success out" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="sm-1"></div>
                             <div class="col-sm-11">
-                                <button type="submit" class="btn btn-outline-success text-capitalize">calculate</button>
+                                <button type="submit" class="btn btn-outline-success text-capitalize outBtn calcBtn">calculate</button>
                             </div>
                         </div>
                     </form>
@@ -90,21 +93,21 @@
                 <div id="expense" class="border border-danger rounded p-3 w-100">
                     <form action="" role="form" class="expenseForm">
                         <div class="form-group">
-                            <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter your expense</label>
+                            <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter your expense title</label>
                             <div class="col-sm-11">
-                                <input type="text" name="expname" id="expenseName" placeholder="Enter Expense" class="form-control border-danger" required>
+                                <input type="text" name="expname" id="expenseName" placeholder="Enter Expense Title" class="form-control out border-danger" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="" class="control-label sm-1 ml-3 text-capitalize">please enter expense amount</label>
                             <div class="col-sm-11">
-                                <input type="number" name="expense" id="expenseValue" placeholder="Enter Expense Amount" class="form-control border-danger" required>
+                                <input type="number" name="expense" id="expenseValue" placeholder="Enter Expense Amount" class="form-control out border-danger" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="sm-1"></div>
                             <div class="col-sm-11">
-                                <button type="submit" class="btn btn-outline-danger text-capitalize">add expense</button>
+                                <button type="submit" class="btn btn-outline-danger text-capitalize outBtn">add expense</button>
                             </div>
                         </div>
                     </form>
@@ -131,36 +134,52 @@
     <script>
         const budgetForm = document.querySelector('.budgetForm');
         const budgetAmount = document.querySelector('#budgetAmount');
-        const budget = [];
+        const budget = JSON.parse(localStorage.getItem('budget')) || [{budgetValue: 0}];
+        //const budget = [];
 
         const expenseForm = document.querySelector('.expenseForm');
         const expenseAmount = document.querySelector('#expenseAmount');
         const expenseList = document.querySelector('#expList');
-        const expenseDetails = [];
+        const expenseDetails = JSON.parse(localStorage.getItem('expenseInfo')) || [];
+        //const expenseDetails = [];
+        let expense = localStorage.getItem('expense') || '0';
+        //let expense;
 
         let theBalance;
+        let c;
         const balance = document.querySelector('#balance');
+        const calcBalance = JSON.parse(localStorage.getItem('balance')) || [];
+       //const calcBalance = [];
 
         const wholeBudget = {};
         
         function showBudget(e) {
             e.preventDefault();
             const budgetValue = (this.querySelector('[name=budget]')).value;
+            //const budgetVal = Number(budgetValue);
             const budValue = {
                 budgetValue
             };
             const newBudget = Number(budgetValue);
-            wholeBudget.budget = newBudget;
+            //wholeBudget.budget = newBudget;
+            
+            
             if(budget != []) {
                 budget.splice(0, 1, budValue);
             } else {
                 budget.push(budValue);
             }
+            wholeBudget.budget = budget[0].budgetValue;
+            console.log(wholeBudget);
+            console.log(budget);
             
+    
             addBudget(budget, budgetAmount);
-            
-            showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
 
+            localStorage.setItem('budget', JSON.stringify(budget));
+
+            showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+            
             this.reset();
         }
 
@@ -184,11 +203,18 @@
             expenseDetails.push(exp);
             
             addExpense(expenseDetails, expenseList);
+
             
             const exi = expenseDetails.map(expenses => expenses.expenseVal);
-            const expense = exi.reduce((a, b) => a + b, 0);
+            expense = exi.reduce((a, b) => a + b, 0);
+
+
             wholeBudget.expense = expense;
             expenseAmount.innerHTML = `&#8358; ${expense}`;
+
+            localStorage.setItem('expenseInfo', JSON.stringify(expenseDetails));
+
+            localStorage.setItem('expense', expense);
 
             showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
             
@@ -201,7 +227,7 @@
                     <li class="row">
                         <p class="col-4 text-center infos text-danger text-capitalize" data-index="${i}" id=exp${i}>${list.expenseName}</p>
                         <p class="col-4 text-center infos text-danger" for="exp${i}">&#8358; ${list.expenseVal}</p>
-                        <i class="col-4 text-left infos text-danger fa fa-trash delete" for="exp${i}"></i>
+                        <div class="col-4 text-left"><i class="infos text-danger fa fa-trash delete" for="exp${i}"></i></div>
                     </li>
                 `;
             }).join('');
@@ -212,11 +238,14 @@
                 const el = e.target;
                 const index = el.dataset.index;
                 expenseDetails.splice(index, 1);
+                localStorage.removeItem('expenseInfo', this.expenseDetails);
+                localStorage.setItem('expenseInfo', JSON.stringify(expenseDetails));
                 addExpense(expenseDetails, expenseList);
                 const exi = expenseDetails.map(expenses => expenses.expenseVal);
                 const expense = exi.reduce((a, b) => a + b, 0);
                 wholeBudget.expense = expense;
                 expenseAmount.innerHTML = `&#8358; ${expense}`;
+                localStorage.setItem('expense', expense);
 
                 showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
             }
@@ -226,20 +255,58 @@
 
         function showBalance(a = 0, b = 0, c) {
             c = a - b; //calculate the balance
-            if(c < 0) {
-                balance.innerHTML = `<span class="text-danger">&#8358; ${c}</span>`;
-            } else if(c > 0) {
-                balance.innerHTML = `<span class="text-success">&#8358; ${c}</span>`;
+            const budBalance = {c};
+            
+            if(calcBalance != []) {
+                calcBalance.splice(0, 1, budBalance);
             } else {
-                balance.innerHTML = `<span class="text-dark">&#8358; ${c}</span>`;
+                calcBalance.push(budBalance);
             }
+            console.log(calcBalance);
+            addBalance(calcBalance, balance, c);
+            localStorage.setItem('balance', JSON.stringify(calcBalance));
         }
 
+        function addBalance (balInfo = [], bal, balC) {
 
+            if(balC < 0) {
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-danger">&#8358; ${bamt.c}</span>`);
+            } else if(balC > 0) {
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-success">&#8358; ${bamt.c}</span>`);
+            } else {
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-dark">&#8358; ${bamt.c}</span>`);
+            }
+
+        }
+        
+         //else {
+        //     addBudget(budget, budgetAmount);
+        // };
+
+        // if(expenseDetails = []) {
+        //     expenseAmount.innerHTML = `&#8358; 0`
+        // }
 
         budgetForm.addEventListener('submit', showBudget);
         expenseForm.addEventListener('submit', showExpenseDetails);
         expenseList.addEventListener('click', deleteExpense);
+        
+        
+        // if(budget = []) {
+        //     budgetAmount.innerHTML = `&#8358; 0`
+        // };
+        
+        addBudget(budget, budgetAmount);
+        wholeBudget.budget = budget[0].budgetValue;
+
+        addExpense(expenseDetails, expenseList);
+
+        expenseAmount.innerHTML = `&#8358; ${expense}`;
+        wholeBudget.expense = expense;
+
+        addBalance(calcBalance, balance, c);
+        showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+
     </script>
 </body>
 </html>
