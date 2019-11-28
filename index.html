@@ -12,7 +12,7 @@
         body {
             font-family: 'Raleway', sans-serif;
             font-size: 100%;
-            background: #eeeeee !important;
+            background: #eeeeee;
         }
         .fa-naira:before {
             font-weight: 700;
@@ -306,20 +306,6 @@
 
         addBalance(calcBalance, balance, c);
         showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
-        
-
-        const secretCode = 'lobella';
-        const press = [];
-
-        window.addEventListener('keyup', function(e) {
-            //console.log(e.key);
-            press.push(e.key);
-            press.splice(-secretCode.length - 1, press.length - secretCode.length);
-            console.log(press);
-            if (press.join('').includes(secretCode)) {
-                alert(`BIG HEAD 💚.\nYou're still stucked in my head`)
-            }
-        });
 
     </script>
 </body>
