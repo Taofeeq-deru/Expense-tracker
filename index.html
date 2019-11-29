@@ -152,6 +152,11 @@
        //const calcBalance = [];
 
         const wholeBudget = {};
+
+        
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
         
         function showBudget(e) {
             e.preventDefault();
@@ -186,7 +191,7 @@
         function addBudget(budInfo = [], budAmt) {
             budAmt.innerHTML = budInfo.map((amt) => {
                 return `
-                    &#8358; ${amt.budgetValue}
+                    &#8358; ${numberWithCommas(amt.budgetValue)}
                 `;
             }).join('');
         }
@@ -210,7 +215,7 @@
 
 
             wholeBudget.expense = expense;
-            expenseAmount.innerHTML = `&#8358; ${expense}`;
+            expenseAmount.innerHTML = `&#8358; ${numberWithCommas(expense)}`;
 
             localStorage.setItem('expenseInfo', JSON.stringify(expenseDetails));
 
@@ -225,14 +230,14 @@
             expL.innerHTML = expInfo.map((list, i) => {
                 return `
                     <li class="row">
-                        <p class="col-4 text-center infos text-danger text-capitalize" data-index="${i}" id=exp${i}>${list.expenseName}</p>
-                        <p class="col-4 text-center infos text-danger" for="exp${i}">&#8358; ${list.expenseVal}</p>
-                        <div class="col-4 text-left"><i class="infos text-danger fa fa-trash delete" for="exp${i}"></i></div>
+                        <p class="col-4 text-center infos text-danger text-capitalize" data-index=${i} id="exp${i}">${list.expenseName}</p>
+                        <p class="col-4 text-center infos text-danger" for="exp${i}">&#8358; ${numberWithCommas(list.expenseVal)}</p>
+                        <div class="col-4 text-left"><i class="infos text-danger fa fa-trash delete" for="exp${i}" data-index=${i}></i></div>
                     </li>
                 `;
             }).join('');
         }
-
+        console.clear();
         function deleteExpense(e) {
             if(e.target.matches('.delete')) {     
                 const el = e.target;
@@ -244,10 +249,14 @@
                 const exi = expenseDetails.map(expenses => expenses.expenseVal);
                 const expense = exi.reduce((a, b) => a + b, 0);
                 wholeBudget.expense = expense;
-                expenseAmount.innerHTML = `&#8358; ${expense}`;
+                expenseAmount.innerHTML = `&#8358; ${numberWithCommas(expense)}`;
                 localStorage.setItem('expense', expense);
 
                 showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+
+                console.log(el);
+                console.log(expenseDetails);
+
             }
         }
 
@@ -262,7 +271,7 @@
             } else {
                 calcBalance.push(budBalance);
             }
-            console.log(calcBalance);
+            //console.log(calcBalance);
             addBalance(calcBalance, balance, c);
             localStorage.setItem('balance', JSON.stringify(calcBalance));
         }
@@ -270,11 +279,11 @@
         function addBalance (balInfo = [], bal, balC) {
 
             if(balC < 0) {
-                bal.innerHTML = balInfo.map((bamt) => `<span class="text-danger">&#8358; ${bamt.c}</span>`);
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-danger">&#8358; ${numberWithCommas(bamt.c)}</span>`);
             } else if(balC > 0) {
-                bal.innerHTML = balInfo.map((bamt) => `<span class="text-success">&#8358; ${bamt.c}</span>`);
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-success">&#8358; ${numberWithCommas(bamt.c)}</span>`);
             } else {
-                bal.innerHTML = balInfo.map((bamt) => `<span class="text-dark">&#8358; ${bamt.c}</span>`);
+                bal.innerHTML = balInfo.map((bamt) => `<span class="text-dark">&#8358; ${numberWithCommas(bamt.c)}</span>`);
             }
 
         }
@@ -301,7 +310,7 @@
 
         addExpense(expenseDetails, expenseList);
 
-        expenseAmount.innerHTML = `&#8358; ${expense}`;
+        expenseAmount.innerHTML = `&#8358; ${numberWithCommas(expense)}`;
         wholeBudget.expense = expense;
 
         addBalance(calcBalance, balance, c);
