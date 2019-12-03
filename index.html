@@ -23,7 +23,7 @@
             list-style: none;
             padding: 0;
         }
-        .delete:hover {
+        .delete:hover, .edit:hover {
             cursor: pointer;
         }
         .out:focus, .outBtn:focus {
@@ -230,20 +230,23 @@
                     <li class="row">
                         <p class="col-4 text-center infos text-danger text-capitalize" data-index=${i} id="exp${i}">${list.expenseName}</p>
                         <p class="col-4 text-center infos text-danger" for="exp${i}">&#8358; ${numberWithCommas(list.expenseVal)}</p>
-                        <div class="col-4 text-left"><i class="infos text-danger fa fa-trash delete" for="exp${i}" data-index=${i}></i></div>
+                        <div class="col-4 row">
+                            <div class="col-3 text-left"><i class="infos text-info fa fa-edit edit" for="exp${i}" data-index=${i}></i></div>
+                            <div class="col-3 text-left"><i class="infos text-danger fa fa-trash delete" for="exp${i}" data-index=${i}></i></div>
+                        </div>
                     </li>
                 `;
             }).join('');
         }
         console.clear();
-        function deleteExpense(e) {
+        function deleteOrEditExpense(e) {
             if(e.target.matches('.delete')) {     
                 const el = e.target;
                 const index = el.dataset.index;
                 expenseDetails.splice(index, 1);
+                addExpense(expenseDetails, expenseList);
                 localStorage.removeItem('expenseInfo', this.expenseDetails);
                 localStorage.setItem('expenseInfo', JSON.stringify(expenseDetails));
-                addExpense(expenseDetails, expenseList);
                 const exi = expenseDetails.map(expenses => expenses.expenseVal);
                 const expense = exi.reduce((a, b) => a + b, 0);
                 wholeBudget.expense = expense;
@@ -254,6 +257,23 @@
 
                 console.log(el);
                 console.log(expenseDetails);
+
+            } else if(e.target.matches('.edit')) {
+                const editEl = e.target;
+                const editIndex = editEl.dataset.index;
+                const editValue = expenseDetails[editIndex].expenseVal;
+                const editName = expenseDetails[editIndex].expenseName;
+                console.log(editValue, editName);
+                console.log(editEl);
+                expenseDetails.splice(editIndex, 1);
+                
+                (document.querySelector('[name=expense]')).value = `${editValue}`;
+                (document.querySelector('[name=expname]')).value = `${editName}`;
+                (document.querySelector('[name=expense]')).focus();
+
+                showExpenseDetails();
+
+                localStorage.removeItem('expenseInfo', this.expenseDetails);
 
             }
         }
@@ -296,7 +316,7 @@
 
         budgetForm.addEventListener('submit', showBudget);
         expenseForm.addEventListener('submit', showExpenseDetails);
-        expenseList.addEventListener('click', deleteExpense);
+        expenseList.addEventListener('click', deleteOrEditExpense);
         
         
         // if(budget = []) {
