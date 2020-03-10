@@ -135,6 +135,8 @@
         const budget = JSON.parse(localStorage.getItem('budget')) || [{budgetValue: 0}];
         //const budget = [];
 
+        let index = "";
+        let editted = "";
         const expenseForm = document.querySelector('.expenseForm');
         const expenseAmount = document.querySelector('#expenseAmount');
         const expenseList = document.querySelector('#expList');
@@ -203,10 +205,20 @@
                 expenseName,
                 expenseVal
             };
-            expenseDetails.push(exp);
+
+            if(editted == "yes") {
+                expenseDetails[index] = exp
+
+                localStorage.removeItem('expenseInfo', this.expenseDetails);
+
+                index = "";
+                editted = "";
+
+            } else {
+                expenseDetails.push(exp);
+            }
             
             addExpense(expenseDetails, expenseList);
-
             
             const exi = expenseDetails.map(expenses => expenses.expenseVal);
             expense = exi.reduce((a, b) => a + b, 0);
@@ -265,15 +277,16 @@
                 const editName = expenseDetails[editIndex].expenseName;
                 console.log(editValue, editName);
                 console.log(editEl);
-                expenseDetails.splice(editIndex, 1);
+                index = editIndex;
+                editted = "yes";
+                //expenseDetails.splice(editIndex, 1);
                 
                 (document.querySelector('[name=expense]')).value = `${editValue}`;
                 (document.querySelector('[name=expname]')).value = `${editName}`;
                 (document.querySelector('[name=expense]')).focus();
 
-                showExpenseDetails();
 
-                localStorage.removeItem('expenseInfo', this.expenseDetails);
+                //localStorage.removeItem('expenseInfo', this.expenseDetails);
 
             }
         }
