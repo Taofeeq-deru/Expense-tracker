@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Budget App</title>
+    <title>Expense Tracker</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
@@ -32,6 +32,7 @@
         list-style: none;
         padding: 0;
       }
+      .resetBtn,
       .delete:hover,
       .edit:hover {
         cursor: pointer;
@@ -39,6 +40,12 @@
       .out:focus,
       .outBtn:focus {
         box-shadow: none;
+        outline: none;
+      }
+      small {
+        font-weight: lighter;
+        font-size: x-small;
+        text-transform: none;
       }
       @media screen and (max-width: 48em) {
         .resize {
@@ -55,21 +62,21 @@
     <div class="container pt-4">
       <div class="row">
         <h3 class="col-md-12 text-info">
-          Welcome<!--<span class="text-capitalize userName font-weight-bold"></span>-->,
-          let's help you with your budget.
+          Welcome, let's help you track your expenses.
         </h3>
       </div>
       <div class="row">
-        <h2 class="col-md-12 text-uppercase">budget app</h2>
+        <h2 class="col-md-12 text-uppercase">expense tracker</h2>
       </div>
       <div class="row mt-3">
         <div class="col-md-5">
           <div id="budget" class="border border-success rounded p-3 w-100">
             <form action="" role="form" class="budgetForm">
               <div class="form-group">
-                <label for="" class="control-label sm-1 ml-3 text-capitalize"
-                  >please enter your budget</label
-                >
+                <label for="" class="control-label sm-1 ml-3 text-capitalize">
+                  please enter your income <br />
+                  <small>Click reset to reset income to zero (0)</small>
+                </label>
                 <div class="col-sm-11">
                   <input
                     type="number"
@@ -85,10 +92,13 @@
                 <div class="col-sm-11">
                   <button
                     type="submit"
-                    class="btn btn-outline-success text-capitalize outBtn calcBtn"
+                    class="btn btn-outline-success text-capitalize outBtn calcBtn mr-2"
                   >
                     calculate
                   </button>
+                  <div class="btn btn-outline-info text-capitalize resetBtn">
+                    reset
+                  </div>
                 </div>
               </div>
             </form>
@@ -97,7 +107,7 @@
         <div class="col-md-7">
           <div id="details" class="row">
             <div class="infos col-4 text-center">
-              <h6 class="resize text-uppercase font-weight-bold">budget</h6>
+              <h6 class="resize text-uppercase font-weight-bold">income</h6>
               <i class="fa fa-money-bill-alt fa-4x text-info mt-1 mb-1"></i>
               <h4 class="text-success">
                 <span id="budgetAmount">&#8358; 0</span>
@@ -188,6 +198,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
+      const reset = document.querySelector(".resetBtn");
       const budgetForm = document.querySelector(".budgetForm");
       const budgetAmount = document.querySelector("#budgetAmount");
       const budget = JSON.parse(localStorage.getItem("budget")) || [
@@ -218,6 +229,17 @@
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       }
 
+      function resetIncome() {
+        budget[0].budgetValue = 0;
+        wholeBudget.budget = budget[0].budgetValue;
+
+        addBudget(budget, budgetAmount);
+
+        localStorage.setItem("budget", JSON.stringify(budget));
+
+        showBalance(wholeBudget.budget, wholeBudget.expense, theBalance);
+      }
+
       function showBudget(e) {
         e.preventDefault();
         const budgetValue = this.querySelector("[name=budget]").value;
@@ -229,12 +251,14 @@
         //wholeBudget.budget = newBudget;
 
         if (budget != []) {
-          budget.splice(0, 1, budValue);
+          budget[0].budgetValue =
+            Number(budget[0].budgetValue) + Number(budValue.budgetValue);
+          console.log(budget[0].budgetValue);
         } else {
           budget.push(budValue);
         }
         wholeBudget.budget = budget[0].budgetValue;
-        console.log(wholeBudget);
+        //console.log(wholeBudget);
         console.log(budget);
 
         addBudget(budget, budgetAmount);
@@ -399,6 +423,7 @@
       //     expenseAmount.innerHTML = `&#8358; 0`
       // }
 
+      reset.addEventListener("click", resetIncome);
       budgetForm.addEventListener("submit", showBudget);
       expenseForm.addEventListener("submit", showExpenseDetails);
       expenseList.addEventListener("click", deleteOrEditExpense);
