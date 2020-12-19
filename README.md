@@ -1,2 +1,2 @@
-# Budget-App
-This is a simple budget app made with vanilla JS.
+# Expense-tracker
+This is a simple expense tracking made with vanilla JS.
